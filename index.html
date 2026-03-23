@@ -1,154 +1,208 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nota de Examen CAP</title>
-    <!-- Favicon de Camión generado con SVG -->
+    <title>CAP 20/03/26</title>
+    <!-- Favicon SVG -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚛</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        /* Modern imports for a cleaner font if available */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
         /* Ensures the character sequence is easy to read on mobile */
         .input-monospaced {
             font-family: 'Courier New', Courier, monospace;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             word-break: break-all;
         }
-        /* Visual spacing for the summary results */
-        .summary-section {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            text-align: left;
-        }
-        .question-item {
-            display: inline-block;
-            margin: 0.2rem;
-            padding: 0.3rem 0.5rem;
-            border-radius: 0.375rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .failed {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-        .unanswered {
-            background-color: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-        /* Better touch targets for mobile */
+        
+        /* Better touch targets for mobile and prevents iOS auto-zoom on focus */
         select, button, textarea {
-            font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+            font-size: 16px !important;
+        }
+
+        /* Smooth scrollbar for textarea */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .dark textarea::-webkit-scrollbar-thumb {
+            background-color: #475569;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-4 px-2 sm:py-8 sm:px-4 flex flex-col items-center">
-    <div class="max-w-2xl w-full mx-auto bg-white rounded-xl shadow-lg p-5 sm:p-8">
-        <h1 class="text-xl sm:text-2xl font-bold text-center text-blue-700 mb-6">CAP Inicial 20/03/26</h1>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 min-h-screen py-4 px-3 sm:py-8 sm:px-4 flex flex-col items-center transition-colors duration-300">
+    <div class="max-w-2xl w-full mx-auto">
         
-        <div class="space-y-5">
-            <!-- Exam Selection -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Selecciona el Tipo de Examen:</label>
-                <select id="examType" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm">
-                    <option value="mercA">Mercancías A</option>
-                    <option value="mercB">Mercancías B</option>
-                    <option value="viajA">Viajeros A</option>
-                    <option value="viajB">Viajeros B</option>
-                </select>
-            </div>
-
-            <!-- Instructions -->
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 text-xs sm:text-sm text-blue-800 rounded-r-lg">
-                <p class="font-bold mb-1">Instrucciones:</p>
-                <ul class="list-disc ml-4 space-y-1">
-                    <li>100 caracteres sin espacios.</li>
-                    <li>Usa <strong>A, B, C, D</strong> o <strong>X</strong> (para respuesta en blanco).</li>
-                    <li>Sólo para CAP INICIAL</li>
-                </ul>
-            </div>
-
-            <!-- Disclaimer -->
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-xs sm:text-sm text-red-800 rounded-r-lg">
-                <p class="font-bold mb-1">Descargo de responsabilidad:</p>
-                <ul class="list-disc ml-4 space-y-1">
-                    <li>Esto <strong>NO</strong> es un resultado oficial</li>
-                    <li>Puede contener errores</li>
-                    <li>Debe usarse a modo orientativo</li>
-                </ul>
-            </div>
-
-            <!-- Student Answers Input -->
-            <div>
-                <div class="flex justify-between items-end mb-2">
-                    <label class="block text-sm font-medium text-gray-700">Respuestas (100 caracteres):</label>
-                    <span id="charCount" class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">0 / 100</span>
-                </div>
-                <textarea 
-                    id="studentAnswers" 
-                    maxlength="100" 
-                    rows="5"
-                    spellcheck="false"
-                    class="w-full border border-gray-300 rounded-lg p-3 input-monospaced focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase shadow-sm resize-none"
-                    placeholder="Escribe aquí las 100 respuestas: AXCXAABBC..."></textarea>
-                <p id="errorMsg" class="text-red-500 text-xs mt-2 hidden font-bold">Error: Se requieren exactamente 100 caracteres.</p>
-            </div>
-
-            <!-- Action Button -->
-            <button 
-                id="calcBtn"
-                onclick="calculateGrade()"
-                disabled
-                class="w-full bg-gray-400 text-white font-bold py-4 px-4 rounded-xl transition-colors shadow-md touch-manipulation cursor-not-allowed">
-                Calcular Resultado (No disponible)
+        <!-- Header with Title and Theme Toggle -->
+        <div class="flex justify-between items-center mb-6 px-2">
+            <h1 class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 tracking-tight">CAP Inicial 20/03/26</h1>
+            
+            <button id="themeToggle" class="p-2.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" aria-label="Cambiar tema">
+                <!-- Sun Icon (Hidden in Light Mode) -->
+                <svg id="icon-sun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <!-- Moon Icon (Hidden in Dark Mode) -->
+                <svg id="icon-moon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
             </button>
+        </div>
 
-            <!-- Results Display -->
-            <div id="resultContainer" class="hidden mt-6 p-4 sm:p-6 rounded-xl text-center border-2">
-                <div id="statusLabel" class="text-2xl sm:text-3xl font-black mb-1 uppercase"></div>
-                <div class="text-lg sm:text-xl text-gray-700 font-semibold mb-4">
-                    Puntuación: <span id="finalScore" class="text-2xl">0</span>
-                </div>
-                
-                <div class="grid grid-cols-3 gap-2 text-[10px] sm:text-xs text-gray-600 uppercase tracking-wider">
-                    <div class="flex flex-col border bg-white p-2 rounded-lg shadow-sm">
-                        <span>Aciertos</span>
-                        <span id="statCorrect" class="text-base sm:text-lg font-bold text-green-600">0</span>
-                    </div>
-                    <div class="flex flex-col border bg-white p-2 rounded-lg shadow-sm">
-                        <span>Fallos</span>
-                        <span id="statFailed" class="text-base sm:text-lg font-bold text-red-600">0</span>
-                    </div>
-                    <div class="flex flex-col border bg-white p-2 rounded-lg shadow-sm">
-                        <span>Blancos</span>
-                        <span id="statUnanswered" class="text-base sm:text-lg font-bold text-gray-500">0</span>
+        <!-- Main Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none p-5 sm:p-8 border border-slate-100 dark:border-slate-700/50 transition-colors duration-300">
+            
+            <div class="space-y-6">
+                <!-- Exam Selection -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Tipo de Examen</label>
+                    <div class="relative">
+                        <select id="examType" class="w-full appearance-none border border-slate-300 dark:border-slate-600 rounded-xl py-3.5 pl-4 pr-10 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none shadow-sm transition-colors cursor-pointer">
+                            <option value="mercA">Mercancías A</option>
+                            <option value="mercB">Mercancías B</option>
+                            <option value="viajA">Viajeros A</option>
+                            <option value="viajB">Viajeros B</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500 dark:text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Detailed Summary Section -->
-                <div class="summary-section">
-                    <h2 class="text-md font-bold text-gray-800 mb-3 border-b pb-1">Detalle de Errores</h2>
-                    <div id="summary" class="flex flex-wrap justify-start sm:justify-center">
-                        <!-- Dynamic content -->
+                <!-- Info Alerts Container (Grid on larger screens) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <!-- Instructions -->
+                    <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-4 text-sm text-blue-800 dark:text-blue-300">
+                        <p class="font-semibold flex items-center gap-2 mb-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Instrucciones
+                        </p>
+                        <ul class="list-disc ml-5 space-y-0.5 text-xs sm:text-sm opacity-90">
+                            <li>100 caracteres exactos sin espacios.</li>
+                            <li>Usar <strong>A, B, C, D</strong> o <strong>X</strong> (blanco).</li>
+                        </ul>
+                    </div>
+
+                    <!-- Disclaimer -->
+                    <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-400">
+                        <p class="font-semibold flex items-center gap-2 mb-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            Aviso
+                        </p>
+                        <ul class="list-disc ml-5 space-y-0.5 text-xs sm:text-sm opacity-90">
+                            <li>Resultado <strong>NO</strong> oficial.</li>
+                            <li>Uso únicamente orientativo.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Student Answers Input -->
+                <div class="pt-2">
+                    <div class="flex justify-between items-end mb-2">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Respuestas del alumno</label>
+                        <span id="charCount" class="text-xs font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2.5 py-1 rounded-md transition-colors">0 / 100</span>
+                    </div>
+                    <div class="relative">
+                        <textarea 
+                            id="studentAnswers" 
+                            maxlength="100" 
+                            rows="4"
+                            spellcheck="false"
+                            class="w-full border border-slate-300 dark:border-slate-600 rounded-xl p-4 input-monospaced bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none uppercase shadow-inner resize-none transition-colors"
+                            placeholder="Ejemplo: AXCXAABBC..."></textarea>
+                    </div>
+                    <p id="errorMsg" class="text-red-500 dark:text-red-400 text-xs mt-2 hidden font-medium flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Faltan respuestas para llegar a 100.
+                    </p>
+                </div>
+
+                <!-- Action Button -->
+                <button 
+                    id="calcBtn"
+                    onclick="calculateGrade()"
+                    disabled
+                    class="w-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-bold py-4 px-4 rounded-xl transition-all duration-300 ease-out shadow-sm touch-manipulation cursor-not-allowed">
+                    Faltan respuestas (100 necesarias)
+                </button>
+
+                <!-- Results Display -->
+                <div id="resultContainer" class="hidden mt-8 pt-2">
+                    <div id="resultBox" class="p-6 rounded-2xl text-center border-2 shadow-sm transition-colors duration-300">
+                        <div id="statusLabel" class="text-3xl sm:text-4xl font-black mb-2 uppercase tracking-tight"></div>
+                        <div class="text-slate-600 dark:text-slate-400 font-medium mb-6 flex items-center justify-center gap-2">
+                            Puntuación Final: <span id="finalScore" class="text-3xl font-bold text-slate-900 dark:text-white">0</span>
+                        </div>
+                        
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="flex flex-col bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/50 p-3 rounded-xl shadow-sm">
+                                <span class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Aciertos</span>
+                                <span id="statCorrect" class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</span>
+                            </div>
+                            <div class="flex flex-col bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/50 p-3 rounded-xl shadow-sm">
+                                <span class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Fallos</span>
+                                <span id="statFailed" class="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400">0</span>
+                            </div>
+                            <div class="flex flex-col bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/50 p-3 rounded-xl shadow-sm">
+                                <span class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Blancos</span>
+                                <span id="statUnanswered" class="text-xl sm:text-2xl font-bold text-slate-600 dark:text-slate-300">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Summary Section -->
+                    <div class="mt-8 border-t border-slate-100 dark:border-slate-700/50 pt-6">
+                        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 uppercase tracking-wide flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            Detalle de Errores
+                        </h2>
+                        <div id="summary" class="flex flex-wrap gap-2 justify-start">
+                            <!-- Dynamic content -->
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Footer -->
-            <footer class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
+            <footer class="mt-10 pt-6 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 gap-4">
                 <!-- Visitor Badge -->
-                <div class="mb-4 sm:mb-0" title="Visitas totales a esta página">
-                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fdidactor91.github.io%2FCAP-CAT-260320%2F&countColor=%23263759&style=flat&labelStyle=none" alt="Contador de visitas" class="h-6">
+                <div title="Visitas totales a esta página" class="opacity-80 hover:opacity-100 transition-opacity">
+                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fdidactor91.github.io%2FCAP-CAT-260320%2F&countColor=%232563eb&style=flat&labelStyle=none" alt="Contador de visitas" class="h-6 rounded shadow-sm">
+                </div>
+
+                <!-- Last Update Date -->
+                <div id="lastUpdateContainer" class="hidden text-center">
+                    Última act: <span id="lastUpdateText" class="font-semibold text-slate-700 dark:text-slate-300"></span>
                 </div>
                 
                 <!-- GitHub Repository Link -->
-                <a href="https://github.com/didactor91/CAP-CAT-260320" target="_blank" rel="noopener noreferrer" class="flex items-center hover:text-gray-900 transition-colors font-medium">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <a href="https://github.com/didactor91/CAP-CAT-260320" target="_blank" rel="noopener noreferrer" class="flex items-center hover:text-slate-900 dark:hover:text-white transition-colors font-medium">
+                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
                     </svg>
-                    Código en GitHub
+                    GitHub
                 </a>
             </footer>
         </div>
@@ -156,13 +210,36 @@
 
     <script>
         /**
+         * THEME MANAGEMENT (Dark/Light Mode)
+         */
+        const themeToggleBtn = document.getElementById('themeToggle');
+        
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC, 
+        // but adding here for single-file simplicity.
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        /**
          * ANSWER KEY CONFIGURATION
          */
         const answerKeys = {
-            mercA: "", 
-            mercB: "", 
-            viajA: "", 
-            viajB: "",
+            mercA: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 
+            mercB: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 
+            viajA: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 
+            viajB: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             updatedAt: ""
         };
 
@@ -171,36 +248,38 @@
         const errorMessage = document.getElementById('errorMsg');
         const calcBtn = document.getElementById('calcBtn');
 
+        // Renderizar la fecha de última actualización al cargar
+        window.addEventListener('DOMContentLoaded', () => {
+            if (answerKeys.updatedAt && answerKeys.updatedAt.trim() !== "") {
+                document.getElementById('lastUpdateText').textContent = answerKeys.updatedAt;
+                document.getElementById('lastUpdateContainer').classList.remove('hidden');
+            }
+        });
+
         /**
          * Monitor character count in real time and enable/disable button
          */
         answerTextarea.addEventListener('input', () => {
-            if (!answerKeys.updatedAt) return
-            
             const currentLength = answerTextarea.value.length;
             charCounter.textContent = `${currentLength} / 100`;
             
             if (currentLength === 100) {
                 // UI changes for complete input
-                charCounter.classList.replace('text-gray-500', 'text-green-600');
-                charCounter.classList.add('font-bold');
+                charCounter.className = "text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 rounded-md transition-colors";
                 errorMessage.classList.add('hidden');
                 
-                // Enable button
+                // Enable button with modern styling
                 calcBtn.disabled = false;
-                calcBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                calcBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'active:bg-blue-800');
+                calcBtn.className = "w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold py-4 px-4 rounded-xl transition-all duration-300 ease-out shadow-md hover:shadow-lg active:scale-[0.98] touch-manipulation";
                 calcBtn.textContent = "Calcular Resultado";
             } else {
                 // UI changes for incomplete input
-                charCounter.classList.replace('text-green-600', 'text-gray-500');
-                charCounter.classList.remove('font-bold');
+                charCounter.className = "text-xs font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2.5 py-1 rounded-md transition-colors";
                 
                 // Disable button
                 calcBtn.disabled = true;
-                calcBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                calcBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'active:bg-blue-800');
-                calcBtn.textContent = "Calcular Resultado (Requiere 100 respuestas)";
+                calcBtn.className = "w-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-bold py-4 px-4 rounded-xl transition-all duration-300 ease-out shadow-sm touch-manipulation cursor-not-allowed";
+                calcBtn.textContent = "Faltan respuestas (100 necesarias)";
             }
         });
 
@@ -211,16 +290,24 @@
             const rawInput = answerTextarea.value.trim().toUpperCase();
             const selectedType = document.getElementById('examType').value;
             const currentTemplate = answerKeys[selectedType].toUpperCase();
-            const resultBox = document.getElementById('resultContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultBox = document.getElementById('resultBox');
             const summaryBox = document.getElementById('summary');
 
             if (rawInput.length !== 100) {
                 errorMessage.classList.remove('hidden');
-                resultBox.classList.add('hidden');
+                resultContainer.classList.add('hidden');
+                return;
+            }
+
+            // Simple check to ensure a template exists before grading
+            if (currentTemplate.length !== 100) {
+                alert("Las respuestas correctas para este examen aún no están configuradas.");
                 return;
             }
 
             errorMessage.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
             summaryBox.innerHTML = ''; 
 
             let correctCount = 0;
@@ -244,11 +331,11 @@
             }
 
             let totalScore = correctCount - (failedCount * 0.5);
-            totalScore = Math.max(0, totalScore); // Evita que la puntuación sea negativa
+            totalScore = Math.max(0, totalScore); // Avoid negative results
             const isQualified = totalScore >= 50;
 
             if (summaryBox.innerHTML === '') {
-                summaryBox.innerHTML = '<p class="text-sm text-green-600 font-medium w-full text-center">¡Examen perfecto!</p>';
+                summaryBox.innerHTML = '<div class="w-full text-center py-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/30"><p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">¡Examen perfecto! Ningún fallo ni respuesta en blanco.</p></div>';
             }
 
             // Update UI
@@ -260,27 +347,35 @@
             const statusLabel = document.getElementById('statusLabel');
             if (isQualified) {
                 statusLabel.textContent = "APTO";
-                statusLabel.className = "text-3xl font-black mb-1 text-green-600";
-                resultBox.className = "mt-6 p-5 rounded-xl text-center border-2 border-green-200 bg-green-50 block shadow-sm";
+                statusLabel.className = "text-3xl sm:text-4xl font-black mb-2 uppercase tracking-tight text-emerald-600 dark:text-emerald-400";
+                resultBox.className = "p-6 rounded-2xl text-center border-2 transition-colors duration-300 border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/50 dark:bg-emerald-900/10 shadow-sm";
             } else {
                 statusLabel.textContent = "NO APTO";
-                statusLabel.className = "text-3xl font-black mb-1 text-red-600";
-                resultBox.className = "mt-6 p-5 rounded-xl text-center border-2 border-red-200 bg-red-50 block shadow-sm";
+                statusLabel.className = "text-3xl sm:text-4xl font-black mb-2 uppercase tracking-tight text-rose-600 dark:text-rose-400";
+                resultBox.className = "p-6 rounded-2xl text-center border-2 transition-colors duration-300 border-rose-200 dark:border-rose-800/50 bg-rose-50/50 dark:bg-rose-900/10 shadow-sm";
             }
 
             // Mobile-friendly scroll to result
             setTimeout(() => {
-                resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 50);
         }
 
         /**
-         * Create labels for the results summary
+         * Create labels for the results summary using Tailwind utility classes
          */
         function createSummaryItem(number, type, parent) {
             const item = document.createElement('div');
-            item.className = `question-item ${type}`;
-            item.textContent = type === 'failed' ? `P${number}: Fallo` : `P${number}: En Blanco`;
+            // Base styles shared between types
+            const baseClasses = "px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors flex items-center gap-1.5";
+            
+            if (type === 'failed') {
+                item.className = `${baseClasses} bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20`;
+                item.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> P${number}`;
+            } else {
+                item.className = `${baseClasses} bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700/50`;
+                item.innerHTML = `<svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg> P${number}`;
+            }
             parent.appendChild(item);
         }
     </script>
