@@ -2,25 +2,56 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nota de Examen CAP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Ensures the character sequence is easy to read on mobile */
         .input-monospaced {
             font-family: 'Courier New', Courier, monospace;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
+            word-break: break-all;
+        }
+        /* Visual spacing for the summary results */
+        .summary-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .question-item {
+            display: inline-block;
+            margin: 0.2rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .failed {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .unanswered {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        /* Better touch targets for mobile */
+        select, button, textarea {
+            font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-8 px-4">
-    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
-        <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">CAP Inicial 20/03/26</h1>
+<body class="bg-gray-100 min-h-screen py-4 px-2 sm:py-8 sm:px-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-5 sm:p-8">
+        <h1 class="text-xl sm:text-2xl font-bold text-center text-blue-700 mb-6">CAP Inicial 20/03/26</h1>
         
-        <div class="space-y-6">
-            <!-- Selección de Examen -->
+        <div class="space-y-5">
+            <!-- Exam Selection -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Selecciona el Tipo de Examen:</label>
-                <select id="tipoExamen" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <select id="examType" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm">
                     <option value="MercA">Mercancías A</option>
                     <option value="MercB">Mercancías B</option>
                     <option value="ViajA">Viajeros A</option>
@@ -28,57 +59,65 @@
                 </select>
             </div>
 
-            <!-- Instrucciones -->
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 text-sm text-blue-800">
-                <p class="font-bold mb-1">Instrucciones de uso:</p>
-                <ul class="list-disc ml-5 space-y-1">
-                    <li>Introduce las 100 respuestas seguidas (sin espacios).</li>
-                    <li>Usa <strong>A, B, C, D</strong> para las respuestas.</li>
-                    <li>Usa <strong>X</strong> para indicar que no se ha respondido.</li>
-                    <li>Cualquier otro carácter se contará como fallo.</li>
+            <!-- Instructions -->
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 text-xs sm:text-sm text-blue-800 rounded-r-lg">
+                <p class="font-bold mb-1">Instrucciones:</p>
+                <ul class="list-disc ml-4 space-y-1">
+                    <li>100 caracteres sin espacios.</li>
+                    <li>Usa <strong>A, B, C, D</strong> o <strong>X</strong> (para respuesta en blanco).</li>
                 </ul>
             </div>
 
-            <!-- Entrada de Respuestas -->
+            <!-- Student Answers Input -->
             <div>
                 <div class="flex justify-between items-end mb-2">
-                    <label class="block text-sm font-medium text-gray-700">Respuestas del Alumno (100 caracteres):</label>
-                    <span id="charCount" class="text-xs font-mono text-gray-500">0 / 100</span>
+                    <label class="block text-sm font-medium text-gray-700">Respuestas (100 caracteres):</label>
+                    <span id="charCount" class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">0 / 100</span>
                 </div>
                 <textarea 
-                    id="respuestasAlumno" 
+                    id="studentAnswers" 
                     maxlength="100" 
-                    rows="4"
-                    class="w-full border border-gray-300 rounded-md p-3 input-monospaced focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase"
-                    placeholder="Ejemplo: ABCDXXABCD..."></textarea>
-                <p id="errorMsg" class="text-red-500 text-xs mt-1 hidden italic">Debes introducir exactamente 100 caracteres.</p>
+                    rows="5"
+                    spellcheck="false"
+                    class="w-full border border-gray-300 rounded-lg p-3 input-monospaced focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase shadow-sm resize-none"
+                    placeholder="Escribe aquí las 100 respuestas: AXCXAABBC..."></textarea>
+                <p id="errorMsg" class="text-red-500 text-xs mt-2 hidden font-bold">Error: Se requieren exactamente 100 caracteres.</p>
             </div>
 
-            <!-- Botón de Cálculo -->
+            <!-- Action Button -->
             <button 
-                onclick="calcularNota()"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                onclick="calculateGrade()"
+                class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-4 rounded-xl transition-colors shadow-md touch-manipulation">
                 Calcular Resultado
             </button>
 
-            <!-- Resultado -->
-            <div id="resultadoContainer" class="hidden mt-8 p-6 rounded-lg text-center border-2">
-                <div id="statusLabel" class="text-3xl font-black mb-2 uppercase"></div>
-                <div class="text-xl text-gray-700 font-semibold">
-                    Puntuación: <span id="puntosFinales">0</span> puntos
+            <!-- Results Display -->
+            <div id="resultContainer" class="hidden mt-6 p-4 sm:p-6 rounded-xl text-center border-2">
+                <div id="statusLabel" class="text-2xl sm:text-3xl font-black mb-1 uppercase"></div>
+                <div class="text-lg sm:text-xl text-gray-700 font-semibold mb-4">
+                    Puntuación: <span id="finalScore" class="text-2xl">0</span>
                 </div>
-                <div class="mt-4 grid grid-cols-3 gap-2 text-sm text-gray-600">
-                    <div class="flex flex-col border p-2 rounded">
-                        <span>Aciertos (+1)</span>
-                        <span id="statAciertos" class="font-bold text-green-600">0</span>
+                
+                <div class="grid grid-cols-3 gap-2 text-[10px] sm:text-xs text-gray-600 uppercase tracking-wider">
+                    <div class="flex flex-col border bg-white p-2 rounded-lg shadow-sm">
+                        <span>Aciertos</span>
+                        <span id="statCorrect" class="text-base sm:text-lg font-bold text-green-600">0</span>
                     </div>
-                    <div class="flex flex-col border p-2 rounded">
-                        <span>Fallos (-0.5)</span>
-                        <span id="statFallos" class="font-bold text-red-600">0</span>
+                    <div class="flex flex-col border bg-white p-2 rounded-lg shadow-sm">
+                        <span>Fallos</span>
+                        <span id="statFailed" class="text-base sm:text-lg font-bold text-red-600">0</span>
                     </div>
-                    <div class="flex flex-col border p-2 rounded">
-                        <span>Blancos (0)</span>
-                        <span id="statBlancos" class="font-bold text-gray-500">0</span>
+                    <div class="flex flex-col border bg-white p-2 rounded-lg shadow-sm">
+                        <span>Blancos</span>
+                        <span id="statUnanswered" class="text-base sm:text-lg font-bold text-gray-500">0</span>
+                    </div>
+                </div>
+
+                <!-- Detailed Summary Section -->
+                <div class="summary-section">
+                    <h2 class="text-md font-bold text-gray-800 mb-3 border-b pb-1">Detalle de Errores</h2>
+                    <div id="summary" class="flex flex-wrap justify-start sm:justify-center">
+                        <!-- Dynamic content -->
                     </div>
                 </div>
             </div>
@@ -87,85 +126,113 @@
 
     <script>
         /**
-         * CONFIGURACIÓN DE RESPUESTAS (Introduce aquí los 100 caracteres de cada plantilla)
-         * El formato debe ser un string de 100 letras (A, B, C o D).
+         * ANSWER KEY CONFIGURATION
          */
-        const plantillas = {
-            MercA: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", // Ejemplo
-            MercB: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", // Ejemplo
-            ViajA: "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // Ejemplo
-            ViajB: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"  // Ejemplo
+        const answerKeys = {
+            MercA: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 
+            MercB: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", 
+            ViajA: "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", 
+            ViajB: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"  
         };
 
-        const textarea = document.getElementById('respuestasAlumno');
-        const charCount = document.getElementById('charCount');
-        const errorMsg = document.getElementById('errorMsg');
+        const answerTextarea = document.getElementById('studentAnswers');
+        const charCounter = document.getElementById('charCount');
+        const errorMessage = document.getElementById('errorMsg');
 
-        // Actualizar contador de caracteres en tiempo real
-        textarea.addEventListener('input', () => {
-            const length = textarea.value.length;
-            charCount.textContent = `${length} / 100`;
-            if (length === 100) {
-                charCount.classList.replace('text-gray-500', 'text-green-600');
-                errorMsg.classList.add('hidden');
+        /**
+         * Monitor character count in real time
+         */
+        answerTextarea.addEventListener('input', () => {
+            const currentLength = answerTextarea.value.length;
+            charCounter.textContent = `${currentLength} / 100`;
+            
+            if (currentLength === 100) {
+                charCounter.classList.replace('text-gray-500', 'text-green-600');
+                charCounter.classList.add('font-bold');
+                errorMessage.classList.add('hidden');
             } else {
-                charCount.classList.replace('text-green-600', 'text-gray-500');
+                charCounter.classList.replace('text-green-600', 'text-gray-500');
+                charCounter.classList.remove('font-bold');
             }
         });
 
-        function calcularNota() {
-            const input = textarea.value.trim().toUpperCase();
-            const tipo = document.getElementById('tipoExamen').value;
-            const plantilla = plantillas[tipo].toUpperCase();
-            const container = document.getElementById('resultadoContainer');
+        /**
+         * Core logic for grading
+         */
+        function calculateGrade() {
+            const rawInput = answerTextarea.value.trim().toUpperCase();
+            const selectedType = document.getElementById('examType').value;
+            const currentTemplate = answerKeys[selectedType].toUpperCase();
+            const resultBox = document.getElementById('resultContainer');
+            const summaryBox = document.getElementById('summary');
 
-            if (input.length !== 100) {
-                errorMsg.classList.remove('hidden');
-                container.classList.add('hidden');
+            if (rawInput.length !== 100) {
+                errorMessage.classList.remove('hidden');
+                resultBox.classList.add('hidden');
                 return;
             }
 
-            errorMsg.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            summaryBox.innerHTML = ''; 
 
-            let aciertos = 0;
-            let fallos = 0;
-            let blancos = 0;
+            let correctCount = 0;
+            let failedCount = 0;
+            let unansweredCount = 0;
 
             for (let i = 0; i < 100; i++) {
-                const respAlumno = input[i];
-                const respCorrecta = plantilla[i];
+                const studentChar = rawInput[i];
+                const correctChar = currentTemplate[i];
+                const questionNumber = i + 1;
 
-                if (respAlumno === 'X') {
-                    blancos++;
-                } else if (respAlumno === respCorrecta) {
-                    aciertos++;
+                if (studentChar === 'X') {
+                    unansweredCount++;
+                    createSummaryItem(questionNumber, 'unanswered', summaryBox);
+                } else if (studentChar === correctChar) {
+                    correctCount++;
                 } else {
-                    fallos++;
+                    failedCount++;
+                    createSummaryItem(questionNumber, 'failed', summaryBox);
                 }
             }
 
-            const puntuacionTotal = aciertos - (fallos * 0.5);
-            const esApto = puntuacionTotal >= 50;
+            const totalScore = correctCount - (failedCount * 0.5);
+            const isQualified = totalScore >= 50;
 
-            // Actualizar Interfaz
-            document.getElementById('puntosFinales').textContent = puntuacionTotal.toFixed(1);
-            document.getElementById('statAciertos').textContent = aciertos;
-            document.getElementById('statFallos').textContent = fallos;
-            document.getElementById('statBlancos').textContent = blancos;
-
-            const statusLabel = document.getElementById('statusLabel');
-            if (esApto) {
-                statusLabel.textContent = "APTO";
-                statusLabel.className = "text-3xl font-black mb-2 uppercase text-green-600";
-                container.className = "mt-8 p-6 rounded-lg text-center border-2 border-green-200 bg-green-50 block";
-            } else {
-                statusLabel.textContent = "NO APTO";
-                statusLabel.className = "text-3xl font-black mb-2 uppercase text-red-600";
-                container.className = "mt-8 p-6 rounded-lg text-center border-2 border-red-200 bg-red-50 block";
+            if (summaryBox.innerHTML === '') {
+                summaryBox.innerHTML = '<p class="text-sm text-green-600 font-medium w-full text-center">¡Examen perfecto!</p>';
             }
 
-            // Scroll suave al resultado
-            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Update UI
+            document.getElementById('finalScore').textContent = totalScore.toFixed(1);
+            document.getElementById('statCorrect').textContent = correctCount;
+            document.getElementById('statFailed').textContent = failedCount;
+            document.getElementById('statUnanswered').textContent = unansweredCount;
+
+            const statusLabel = document.getElementById('statusLabel');
+            if (isQualified) {
+                statusLabel.textContent = "APTO";
+                statusLabel.className = "text-3xl font-black mb-1 text-green-600";
+                resultBox.className = "mt-6 p-5 rounded-xl text-center border-2 border-green-200 bg-green-50 block shadow-sm";
+            } else {
+                statusLabel.textContent = "NO APTO";
+                statusLabel.className = "text-3xl font-black mb-1 text-red-600";
+                resultBox.className = "mt-6 p-5 rounded-xl text-center border-2 border-red-200 bg-red-50 block shadow-sm";
+            }
+
+            // Mobile-friendly scroll to result
+            setTimeout(() => {
+                resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        /**
+         * Create labels for the results summary
+         */
+        function createSummaryItem(number, type, parent) {
+            const item = document.createElement('div');
+            item.className = `question-item ${type}`;
+            item.textContent = type === 'failed' ? `P${number}: F` : `P${number}: B`;
+            parent.appendChild(item);
         }
     </script>
 </body>
