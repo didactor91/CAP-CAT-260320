@@ -253,6 +253,7 @@
             if (answerKeys.updatedAt && answerKeys.updatedAt.trim() !== "") {
                 document.getElementById('lastUpdateText').textContent = answerKeys.updatedAt;
                 document.getElementById('lastUpdateContainer').classList.remove('hidden');
+                calcBtn.textContent = "Faltan respuestas (100 necesarias)";
             }
         });
 
@@ -260,6 +261,8 @@
          * Monitor character count in real time and enable/disable button
          */
         answerTextarea.addEventListener('input', () => {
+            if (!answerKeys.updatedAt) return
+            
             const currentLength = answerTextarea.value.length;
             charCounter.textContent = `${currentLength} / 100`;
             
